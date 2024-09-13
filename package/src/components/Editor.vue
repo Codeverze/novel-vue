@@ -44,6 +44,14 @@ const props = defineProps({
     default: "/api/generate",
   },
   /**
+   * Additional headers to pass to the OpenAI completion API.
+   * Defaults to {}.
+   */
+  apiHeaders: {
+    type: Object as PropType<Record<string, string>>,
+    default: {},
+  },
+  /**
    * Additional classes to add to the editor container.
    * Defaults to "relative min-h-[500px] w-full max-w-screen-lg border-stone-200 bg-white p-12 px-8 sm:mb-[calc(20vh)] sm:rounded-lg sm:border sm:px-12 sm:shadow-lg".
    */
@@ -113,6 +121,7 @@ const props = defineProps({
 });
 
 provide("completionApi", props.completionApi);
+provide("apiHeaders", props.apiHeaders);
 useStorage("blobApi", props.blobApi);
 
 const content = useStorage(props.storageKey, props.defaultValue);
@@ -160,6 +169,7 @@ defineExpose({
 const { complete, completion, isLoading, stop } = useCompletion({
   id: "novel-vue",
   api: props.completionApi,
+  headers: props.apiHeaders,
   onFinish: (_prompt, completion) => {
     editor.value?.commands.setTextSelection({
       from: editor.value.state.selection.from - completion.length,

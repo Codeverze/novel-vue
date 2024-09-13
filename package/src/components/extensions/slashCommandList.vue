@@ -56,7 +56,8 @@ const selectedIndex = ref(0);
 
 const { complete, isLoading } = useCompletion({
   id: "novel-vue",
-  api: inject('completionApi'),
+  api: inject("completionApi"),
+  headers: inject("apiHeaders"),
   onResponse: (_) => {
     props.editor.chain().focus().deleteRange(props.range).run();
   },
