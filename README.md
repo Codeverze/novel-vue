@@ -11,7 +11,7 @@ Novel Vue is port of [Novel](https://github.com/steven-tey/novel)
 To use Novel Vue in a project, you can run the following command to install the `novel-vue` [NPM package](https://www.npmjs.com/package/novel-vue):
 
 ```
-npm i novel-vue
+npm i @codeverze/novel-vue
 ```
 
 Then, you can use it in your code like this:
