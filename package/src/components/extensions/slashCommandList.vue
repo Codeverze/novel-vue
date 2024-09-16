@@ -1,19 +1,10 @@
 <template>
-  <div
-    v-if="items.length > 0"
-    ref="commandListContainer"
-    class="z-50 h-auto max-h-[330px] w-72 overflow-y-auto rounded-md border border-stone-200 bg-white px-1 py-2 shadow-md transition-all"
-  >
-    <button
-      v-for="(item, index) in items"
+  <div v-if="items.length > 0" ref="commandListContainer"
+    class="z-50 h-auto max-h-[330px] w-72 overflow-y-auto rounded-md border border-stone-200 bg-white px-1 py-2 shadow-md transition-all">
+    <button v-for="(item, index) in items"
       class="flex items-center w-full px-2 py-1 space-x-2 text-sm text-left rounded-md text-stone-900 hover:bg-stone-100"
-      :class="index === selectedIndex ? 'bg-stone-100 text-stone-900' : ''"
-      :key="index"
-      @click="selectItem(index)"
-    >
-      <div
-        class="flex items-center justify-center w-10 h-10 bg-white border rounded-md border-stone-200"
-      >
+      :class="index === selectedIndex ? 'bg-stone-100 text-stone-900' : ''" :key="index" @click="selectItem(index)">
+      <div class="flex items-center justify-center w-10 h-10 bg-white border rounded-md border-stone-200">
         <LoadingCircle v-if="item.title === 'Continue writing' && isLoading" />
         <component v-else :is="item.icon" size="18" />
       </div>
@@ -32,6 +23,7 @@ import { SuggestionItem } from "./slashExtension";
 import LoadingCircle from "../icons/loadingCircle.vue";
 import { useCompletion } from "ai/vue";
 import { getPrevText } from "../../lib/editor";
+import { customComplete } from "../../lib/api";
 
 const props = defineProps({
   items: {
@@ -54,7 +46,7 @@ const props = defineProps({
 
 const selectedIndex = ref(0);
 
-const { complete, isLoading } = useCompletion({
+const { isLoading, setCompletion } = useCompletion({
   id: "novel-vue",
   api: inject("completionApi"),
   headers: inject("apiHeaders"),
@@ -112,16 +104,29 @@ defineExpose({
 
 function selectItem(index: number) {
   const item = props.items[index];
-
+  const headers = inject("apiHeaders") as Record<string, string>;
+  const completionApi = inject("completionApi") as string;
   if (item) {
     if (item.title === "Continue writing") {
       if (isLoading.value) return;
-      complete(
-        getPrevText(props.editor, {
-          chars: 5000,
-          offset: 1,
-        })
-      );
+
+      isLoading.value = true;
+      // props.editor.commands.deleteRange({ from: props.editor.state.doc.nodeSize - 1, to: props.editor.state.doc.nodeSize });
+
+      customComplete(getPrevText(props.editor, {
+        chars: 5000,
+        offset: 1,
+      }), {
+        ...headers
+      }, completionApi).then((response) => {
+        setCompletion(response);
+        props.editor.chain().focus().deleteRange(props.range).run()
+        isLoading.value = false;
+        props.editor.commands.setTextSelection({
+          from: props.range.from,
+          to: props.range.from + response.length,
+        });
+      });
     } else {
       props.command(item);
     }

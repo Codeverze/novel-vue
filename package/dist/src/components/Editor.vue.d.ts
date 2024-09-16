@@ -105,14 +105,14 @@ declare const _default: import("vue").DefineComponent<{
                         } | {
                             type: string;
                             marks: {
-                                type: string; /**
-                                 * The API route to use for the Vercel Blob.
-                                 * Defaults to "/api/upload".
-                                 */
+                                type: string;
                             }[];
                             text: string;
                         })[];
-                    }[];
+                    }[]; /**
+                     * The API route to use for the OpenAI completion API.
+                     * Defaults to "/api/generate".
+                     */
                 }[];
             } | {
                 type: string;
@@ -302,14 +302,14 @@ declare const _default: import("vue").DefineComponent<{
                         } | {
                             type: string;
                             marks: {
-                                type: string; /**
-                                 * The API route to use for the Vercel Blob.
-                                 * Defaults to "/api/upload".
-                                 */
+                                type: string;
                             }[];
                             text: string;
                         })[];
-                    }[];
+                    }[]; /**
+                     * The API route to use for the OpenAI completion API.
+                     * Defaults to "/api/generate".
+                     */
                 }[];
             } | {
                 type: string;

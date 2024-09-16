@@ -25,6 +25,7 @@ import { defaultEditorProps } from "../lib/props";
 import BubbleMenu from "../components/BubbleMenu/index.vue";
 import { Toaster } from "sonner";
 import { getPrevText } from "../lib/editor";
+import { customComplete } from "../lib/api";
 
 const props = defineProps({
   /**
@@ -92,7 +93,7 @@ const props = defineProps({
    */
   onUpdate: {
     type: Function as PropType<(editor?: EditorClass) => void | Promise<void>>,
-    default: () => {},
+    default: () => { },
   },
   /**
    * A callback function that is called whenever the editor is updated, but only after the defined debounce duration.
@@ -100,7 +101,7 @@ const props = defineProps({
    */
   onDebouncedUpdate: {
     type: Function as PropType<(editor?: EditorClass) => void | Promise<void>>,
-    default: () => {},
+    default: () => { },
   },
   /**
    * The duration (in milliseconds) to debounce the onDebouncedUpdate callback.
@@ -132,6 +133,21 @@ const debouncedUpdate = useDebounceFn(({ editor }) => {
   props.onDebouncedUpdate(editor);
 }, props.debounceDuration);
 
+const { complete, completion, isLoading, stop, setCompletion } = useCompletion({
+  id: "novel-vue",
+  api: props.completionApi,
+  headers: props.apiHeaders,
+  onFinish: (_prompt, completion) => {
+    editor.value?.commands.setTextSelection({
+      from: editor.value.state.selection.from - completion.length,
+      to: editor.value.state.selection.from,
+    });
+  },
+  onError: (err) => {
+    console.error(err);
+  },
+});
+
 const editor = useEditor({
   extensions: [...defaultExtensions, ...props.extensions],
   editorProps: {
@@ -149,11 +165,20 @@ const editor = useEditor({
         from: selection.from - 2,
         to: selection.from,
       });
-      complete(
-        getPrevText(e.editor, {
-          chars: 5000,
-        })
-      );
+      // complete(
+      //   getPrevText(e.editor, {
+      //     chars: 5000,
+      //   })
+      // );
+      customComplete(getPrevText(e.editor, {
+        chars: 5000,
+      }), {
+        ...props.apiHeaders
+      }, props.completionApi). then((response) => {
+        setCompletion(response);
+      });
+
+      
     } else {
       props.onUpdate(e.editor);
       debouncedUpdate(e);
@@ -166,20 +191,7 @@ defineExpose({
   editor,
 });
 
-const { complete, completion, isLoading, stop } = useCompletion({
-  id: "novel-vue",
-  api: props.completionApi,
-  headers: props.apiHeaders,
-  onFinish: (_prompt, completion) => {
-    editor.value?.commands.setTextSelection({
-      from: editor.value.state.selection.from - completion.length,
-      to: editor.value.state.selection.from,
-    });
-  },
-  onError: (err) => {
-    console.error(err);
-  },
-});
+
 
 // Insert chunks of the generated text
 watch(
