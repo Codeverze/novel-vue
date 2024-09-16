@@ -197,6 +197,10 @@ declare const _default: import("vue").DefineComponent<{
         type: StringConstructor;
         default: string;
     };
+    onEditorUpdate: {
+        type: PropType<(json: JSONContent) => void | Promise<void>>;
+        default: () => void;
+    };
 }, {
     editor: import("vue").ShallowRef<import("@tiptap/vue-3").Editor | undefined>;
 }, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
@@ -394,9 +398,14 @@ declare const _default: import("vue").DefineComponent<{
         type: StringConstructor;
         default: string;
     };
+    onEditorUpdate: {
+        type: PropType<(json: JSONContent) => void | Promise<void>>;
+        default: () => void;
+    };
 }>>, {
     completionApi: string;
     apiHeaders: Record<string, string>;
+    onEditorUpdate: (json: JSONContent) => void | Promise<void>;
     blobApi: string;
     className: string;
     onUpdate: (editor?: EditorClass | undefined) => void | Promise<void>;

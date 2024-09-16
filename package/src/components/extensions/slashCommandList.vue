@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { inject, PropType, ref, watch } from "vue";
-import { Editor, Range } from "@tiptap/core";
+import { Editor, JSONContent, Range } from "@tiptap/core";
 import { SuggestionItem } from "./slashExtension";
 import LoadingCircle from "../icons/loadingCircle.vue";
 import { useCompletion } from "ai/vue";
@@ -102,6 +102,8 @@ defineExpose({
   onKeyDown,
 });
 
+const onEditorUpdate = inject("onEditorUpdate") as (editor: JSONContent) => void;
+
 function selectItem(index: number) {
   const item = props.items[index];
   const headers = inject("apiHeaders") as Record<string, string>;
@@ -126,6 +128,8 @@ function selectItem(index: number) {
           from: props.range.from,
           to: props.range.from + response.length,
         });
+
+        onEditorUpdate(props.editor.getJSON());
       });
     } else {
       props.command(item);

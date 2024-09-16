@@ -119,10 +119,16 @@ const props = defineProps({
     type: String,
     default: "novel__content",
   },
+
+  onEditorUpdate: {
+    type: Function as PropType<(json: JSONContent) => void | Promise<void>>,
+    default: () => { },
+  },
 });
 
 provide("completionApi", props.completionApi);
 provide("apiHeaders", props.apiHeaders);
+provide("onEditorUpdate", props.onEditorUpdate);
 useStorage("blobApi", props.blobApi);
 
 const content = useStorage(props.storageKey, props.defaultValue);
@@ -176,11 +182,14 @@ const editor = useEditor({
         ...props.apiHeaders
       }, props.completionApi). then((response) => {
         setCompletion(response);
+
+        props.onEditorUpdate(e.editor);
       });
 
       
     } else {
       props.onUpdate(e.editor);
+      props.onEditorUpdate(e.editor.getJSON());
       debouncedUpdate(e);
     }
   },
