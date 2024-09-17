@@ -201,6 +201,10 @@ declare const _default: import("vue").DefineComponent<{
         type: PropType<(json: JSONContent) => void | Promise<void>>;
         default: () => void;
     };
+    initialContent: {
+        type: PropType<JSONContent> | null;
+        default: null;
+    };
 }, {
     editor: import("vue").ShallowRef<import("@tiptap/vue-3").Editor | undefined>;
 }, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
@@ -402,6 +406,10 @@ declare const _default: import("vue").DefineComponent<{
         type: PropType<(json: JSONContent) => void | Promise<void>>;
         default: () => void;
     };
+    initialContent: {
+        type: PropType<JSONContent> | null;
+        default: null;
+    };
 }>>, {
     completionApi: string;
     apiHeaders: Record<string, string>;
@@ -415,5 +423,6 @@ declare const _default: import("vue").DefineComponent<{
     onDebouncedUpdate: (editor?: EditorClass | undefined) => void | Promise<void>;
     debounceDuration: number;
     storageKey: string;
+    initialContent: JSONContent;
 }, {}>;
 export default _default;

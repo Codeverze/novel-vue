@@ -124,6 +124,11 @@ const props = defineProps({
     type: Function as PropType<(json: JSONContent) => void | Promise<void>>,
     default: () => { },
   },
+
+  initialContent: {
+    type: Object as PropType<JSONContent> | null,
+    default: null,
+  }
 });
 
 provide("completionApi", props.completionApi);
@@ -131,7 +136,8 @@ provide("apiHeaders", props.apiHeaders);
 provide("onEditorUpdate", props.onEditorUpdate);
 useStorage("blobApi", props.blobApi);
 
-const content = useStorage(props.storageKey, props.defaultValue);
+// const content = props.initialContent ? props.initialContent : useStorage(props.storageKey, props.defaultValue);
+const content = ref(props.initialContent ?? useStorage(props.storageKey, props.defaultValue));
 
 const debouncedUpdate = useDebounceFn(({ editor }) => {
   const json = editor.getJSON();
@@ -171,22 +177,17 @@ const editor = useEditor({
         from: selection.from - 2,
         to: selection.from,
       });
-      // complete(
-      //   getPrevText(e.editor, {
-      //     chars: 5000,
-      //   })
-      // );
       customComplete(getPrevText(e.editor, {
         chars: 5000,
       }), {
         ...props.apiHeaders
-      }, props.completionApi). then((response) => {
+      }, props.completionApi).then((response) => {
         setCompletion(response);
 
         props.onEditorUpdate(e.editor);
       });
 
-      
+
     } else {
       props.onUpdate(e.editor);
       props.onEditorUpdate(e.editor.getJSON());
