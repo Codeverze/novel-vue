@@ -128,7 +128,11 @@ const props = defineProps({
   initialContent: {
     type: Object as PropType<JSONContent> | null,
     default: null,
-  }
+  },
+  useLocalStorage: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 provide("completionApi", props.completionApi);
@@ -136,8 +140,7 @@ provide("apiHeaders", props.apiHeaders);
 provide("onEditorUpdate", props.onEditorUpdate);
 useStorage("blobApi", props.blobApi);
 
-// const content = props.initialContent ? props.initialContent : useStorage(props.storageKey, props.defaultValue);
-const content = ref(props.initialContent ?? useStorage(props.storageKey, props.defaultValue));
+const content = ref(props.initialContent ? props.initialContent : (props.useLocalStorage ? useStorage(props.storageKey, props.defaultValue) : props.defaultValue));
 
 const debouncedUpdate = useDebounceFn(({ editor }) => {
   const json = editor.getJSON();

@@ -27389,14 +27389,16 @@ const _ce = { class: "relative" }, Nce = ["onClick"], Rce = { class: "flex items
     initialContent: {
       type: Object,
       default: null
+    },
+    useLocalStorage: {
+      type: Boolean,
+      default: !0
     }
   },
   setup(n, { expose: e }) {
     const t = n;
     qt("completionApi", t.completionApi), qt("apiHeaders", t.apiHeaders), qt("onEditorUpdate", t.onEditorUpdate), ql("blobApi", t.blobApi);
-    const r = H(t.initialContent ?? ql(t.storageKey, t.defaultValue));
-    console.log("%c 🇪🇺: content ", "font-size:16px;background-color:#b82b32;color:white;", r);
-    const o = cw(({ editor: h }) => {
+    const r = H(t.initialContent ? t.initialContent : t.useLocalStorage ? ql(t.storageKey, t.defaultValue) : t.defaultValue), o = cw(({ editor: h }) => {
       const m = h.getJSON();
       r.value = m, t.onDebouncedUpdate(h);
     }, t.debounceDuration), { complete: s, completion: i, isLoading: a, stop: l, setCompletion: c } = Dm({

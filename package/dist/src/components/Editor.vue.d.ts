@@ -205,6 +205,10 @@ declare const _default: import("vue").DefineComponent<{
         type: PropType<JSONContent> | null;
         default: null;
     };
+    useLocalStorage: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
 }, {
     editor: import("vue").ShallowRef<import("@tiptap/vue-3").Editor | undefined>;
 }, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
@@ -410,6 +414,10 @@ declare const _default: import("vue").DefineComponent<{
         type: PropType<JSONContent> | null;
         default: null;
     };
+    useLocalStorage: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
 }>>, {
     completionApi: string;
     apiHeaders: Record<string, string>;
@@ -424,5 +432,6 @@ declare const _default: import("vue").DefineComponent<{
     debounceDuration: number;
     storageKey: string;
     initialContent: JSONContent;
+    useLocalStorage: boolean;
 }, {}>;
 export default _default;
