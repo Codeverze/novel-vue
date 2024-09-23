@@ -423,9 +423,9 @@ declare const _default: import("vue").DefineComponent<{
     apiHeaders: Record<string, string>;
     onEditorUpdate: (json: JSONContent) => void | Promise<void>;
     blobApi: string;
-    className: string;
     onUpdate: (editor?: EditorClass | undefined) => void | Promise<void>;
     defaultValue: JSONContent;
+    className: string;
     extensions: Extension<any, any>[];
     editorProps: EditorProps<any>;
     onDebouncedUpdate: (editor?: EditorClass | undefined) => void | Promise<void>;

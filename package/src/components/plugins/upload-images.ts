@@ -1,8 +1,9 @@
-import { BlobResult } from "@vercel/blob";
+// import { BlobResult } from "@vercel/blob";
 import { useStorage } from "@vueuse/core";
 import { toast } from "sonner";
 import { EditorState, Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet, EditorView } from "@tiptap/pm/view";
+import axios from "axios";
 
 const uploadKey = new PluginKey("upload-image");
 
@@ -50,6 +51,13 @@ const UploadImagesPlugin = () =>
 
 export default UploadImagesPlugin;
 
+interface BlobFile {
+  src: string;
+  type: string;
+  name: string;
+  size: number;
+  lastModified: number;
+}
 function findPlaceholder(state: EditorState, id: {}) {
   const decos = uploadKey.getState(state);
   const found = decos.find(null, null, (spec: any) => spec.id == id);
@@ -86,69 +94,83 @@ export function startImageUpload(file: File, view: EditorView, pos: number) {
       },
     });
     view.dispatch(tr);
-  };
 
-  handleImageUpload(file).then((src) => {
-    const { schema } = view.state;
+    const blobFile: BlobFile = {
+      src: reader.result as string,
+      type: file.type,
+      name: file.name,
+      size: file.size,
+      lastModified: file.lastModified,
+    };
 
-    let pos = findPlaceholder(view.state, id);
-    // If the content around the placeholder has been deleted, drop
-    // the image
-    if (pos == null) return;
+    handleImageUpload(blobFile).then((src) => {
+      if (!src) return;
 
-    // Otherwise, insert it at the placeholder's position, and remove
-    // the placeholder
 
-    // When BLOB_READ_WRITE_TOKEN is not valid or unavailable, read
-    // the image locally
-    const imageSrc = typeof src === "object" ? reader.result : src;
+      const { schema } = view.state;
 
-    const node = schema.nodes.image.create({ src: imageSrc });
-    const transaction = view.state.tr
-      .replaceWith(pos, pos, node)
-      .setMeta(uploadKey, { remove: { id } });
-    view.dispatch(transaction);
-  });
-}
+      let pos = findPlaceholder(view.state, id);
 
-export const handleImageUpload = (file: File) => {
-  // upload to Vercel Blob
-  return new Promise((resolve) => {
-    toast.promise(
-      fetch(useStorage('blobApi', '/api/upload').value, {
-        method: "POST",
-        headers: {
-          "content-type": file?.type || "application/octet-stream",
-          "x-vercel-filename": encodeURIComponent(file?.name || "image.png"),
-        },
-        body: file,
-      }).then(async (res) => {
-        // Successfully uploaded image
-        if (res.status === 200) {
-          const { url } = (await res.json()) as BlobResult;
-          // preload the image
-          let image = new Image();
-          image.src = url;
-          image.onload = () => {
-            resolve(url);
-          };
-          // No blob store configured
-        } else if (res.status === 401) {
-          resolve(file);
+      if (pos == null) return;
 
-          throw new Error(
-            "`BLOB_READ_WRITE_TOKEN` environment variable not found, reading image locally instead."
-          );
-          // Unknown error
-        } else {
-          throw new Error(`Error uploading image. Please try again.`);
-        }
-      }),
-      {
-        loading: "Uploading image...",
-        success: () => "Image uploaded successfully.",
-        error: () => "Image uploaded failed.",
-      }
-    );
-  });
+      const imageSrc = typeof src === "object" ? reader.result : src;
+
+      const node = schema.nodes.image.create({ src: imageSrc });
+
+      const transaction = view.state.tr
+        .replaceWith(pos, pos, node)
+        .setMeta(uploadKey, { remove: { id } });
+
+      view.dispatch(transaction);
+    });
+  }
 };
+
+
+export const handleImageUpload = async (file: BlobFile) => {
+  const url = useStorage('blobApi', '/api/upload').value;
+  const headers = useStorage<Record<string, string>>('apiHeaders', {});
+  const blob = dataURLtoBlob(file.src);
+  headers.value["content-type"] = "multipart/form-data";
+
+  const imageFile = new File([blob], file.name, {
+    type: file.type,
+    lastModified: file.lastModified,
+  });
+
+  const formData = new FormData();
+  formData.append('file', imageFile);
+  try {
+    const response = await axios.post(url, formData, {
+      headers: headers.value
+    })
+
+    if (response.status === 200) {
+      return response.data.url;
+    }
+
+  } catch (error) {
+    console.error(error)
+    return;
+  }
+};
+
+function dataURLtoBlob(dataurl: string): Blob {
+  const arr = dataurl.split(',');
+  const mimeMatch = arr[0].match(/:(.*?);/);
+
+  if (!mimeMatch) {
+    throw new Error('Invalid data URL');
+  }
+
+  const mime = mimeMatch[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+
+  return new Blob([u8arr], { type: mime });
+}

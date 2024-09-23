@@ -138,7 +138,13 @@ const props = defineProps({
 provide("completionApi", props.completionApi);
 provide("apiHeaders", props.apiHeaders);
 provide("onEditorUpdate", props.onEditorUpdate);
-useStorage("blobApi", props.blobApi);
+
+const blobUrl = useStorage("blobApi", props.blobApi);
+useStorage('apiHeaders', props.apiHeaders);
+
+if (blobUrl.value !== props.blobApi) {
+  localStorage.setItem("blobApi", props.blobApi);
+}
 
 const content = ref(props.initialContent ? props.initialContent : (props.useLocalStorage ? useStorage(props.storageKey, props.defaultValue) : props.defaultValue));
 
