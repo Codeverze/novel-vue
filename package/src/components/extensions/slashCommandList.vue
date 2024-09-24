@@ -46,7 +46,7 @@ const props = defineProps({
 
 const selectedIndex = ref(0);
 
-const { isLoading, setCompletion } = useCompletion({
+const { completion, isLoading, setCompletion } = useCompletion({
   id: "novel-vue",
   api: inject("completionApi"),
   headers: inject("apiHeaders"),
@@ -157,4 +157,15 @@ function scrollToSelected() {
     updateScrollView(container, item);
   }
 }
+
+// Add the watch function here
+watch(
+  () => completion.value,
+  (newCompletion, oldCompletion) => {
+    const diff = newCompletion?.slice(oldCompletion?.length);
+    if (diff) {
+      props.editor.commands.insertContent(diff);
+    }
+  }
+);
 </script>
