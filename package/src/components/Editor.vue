@@ -160,7 +160,7 @@ const { complete, completion, isLoading, stop, setCompletion } = useCompletion({
   headers: props.apiHeaders,
   onFinish: (_prompt, _completion) => {
     editor.value?.commands.setTextSelection({
-      from: editor.value.state.selection.from - completion.length,
+      from: editor.value.state.selection.from - _completion.length,
       to: editor.value.state.selection.from,
     });
   },

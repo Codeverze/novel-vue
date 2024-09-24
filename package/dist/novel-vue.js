@@ -27418,6 +27418,11 @@ const Nce = { class: "relative" }, Rce = ["onClick"], Lce = { class: "flex items
       api: t.completionApi,
       headers: t.apiHeaders,
       onFinish: (m, g) => {
+        var b;
+        (b = d.value) == null || b.commands.setTextSelection({
+          from: d.value.state.selection.from - g.length,
+          to: d.value.state.selection.from
+        });
       },
       onError: (m) => {
         console.error(m);
