@@ -25246,10 +25246,7 @@ const Zg = xe, Yg = async (n, e, t = "/openai/completion") => {
           }), {
             ...m
           }, g).then((b) => {
-            s(b), t.editor.chain().focus().deleteRange(t.range).run(), o.value = !1, t.editor.commands.setTextSelection({
-              from: t.range.from,
-              to: t.range.from + b.length
-            }), c(t.editor.getJSON());
+            s(b), t.editor.chain().focus().deleteRange(t.range).run(), o.value = !1, c(t.editor.getJSON());
           });
         } else
           t.command(h);
@@ -27421,11 +27418,6 @@ const Nce = { class: "relative" }, Rce = ["onClick"], Lce = { class: "flex items
       api: t.completionApi,
       headers: t.apiHeaders,
       onFinish: (m, g) => {
-        var b;
-        (b = d.value) == null || b.commands.setTextSelection({
-          from: d.value.state.selection.from - g.length,
-          to: d.value.state.selection.from
-        });
       },
       onError: (m) => {
         console.error(m);
@@ -27440,16 +27432,16 @@ const Nce = { class: "relative" }, Rce = ["onClick"], Lce = { class: "flex items
         const g = m.editor.state.selection;
         ec(m.editor, {
           chars: 2
-        }) === "++" && !l.value ? (m.editor.commands.deleteRange({
+        }) === "++" && !l.value ? (l.value = !0, m.editor.commands.deleteRange({
           from: g.from - 2,
           to: g.from
-        }), Yg(ec(m.editor, {
+        }), u(""), Yg(ec(m.editor, {
           chars: 5e3
         }), {
           ...t.apiHeaders
         }, t.completionApi).then((v) => {
-          u(v), t.onEditorUpdate(m.editor);
-        })) : (t.onUpdate(m.editor), t.onEditorUpdate(m.editor.getJSON()), s(m));
+          u(v);
+        }), t.onEditorUpdate(m.editor.getJSON()), l.value = !1) : (t.onUpdate(m.editor), t.onEditorUpdate(m.editor.getJSON()), s(m));
       },
       autofocus: "end"
     });

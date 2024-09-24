@@ -124,10 +124,6 @@ function selectItem(index: number) {
         setCompletion(response);
         props.editor.chain().focus().deleteRange(props.range).run()
         isLoading.value = false;
-        props.editor.commands.setTextSelection({
-          from: props.range.from,
-          to: props.range.from + response.length,
-        });
 
         onEditorUpdate(props.editor.getJSON());
       });

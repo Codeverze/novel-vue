@@ -158,7 +158,7 @@ const { complete, completion, isLoading, stop, setCompletion } = useCompletion({
   id: "novel-vue",
   api: props.completionApi,
   headers: props.apiHeaders,
-  onFinish: (_prompt, completion) => {
+  onFinish: (_prompt, _completion) => {
     editor.value?.commands.setTextSelection({
       from: editor.value.state.selection.from - completion.length,
       to: editor.value.state.selection.from,
@@ -182,20 +182,27 @@ const editor = useEditor({
     });
     // Run the completion API if the user types "++" at the end of the document.
     if (lastTwo === "++" && !isLoading.value) {
+      isLoading.value = true;
+
       e.editor.commands.deleteRange({
         from: selection.from - 2,
         to: selection.from,
       });
+
+      // Reset the completion before starting a new one
+      setCompletion('');
+
       customComplete(getPrevText(e.editor, {
         chars: 5000,
       }), {
         ...props.apiHeaders
       }, props.completionApi).then((response) => {
         setCompletion(response);
-
-        props.onEditorUpdate(e.editor);
       });
 
+      props.onEditorUpdate(e.editor.getJSON());
+
+      isLoading.value = false;
 
     } else {
       props.onUpdate(e.editor);
