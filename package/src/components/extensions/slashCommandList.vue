@@ -113,7 +113,9 @@ function selectItem(index: number) {
       if (isLoading.value) return;
 
       isLoading.value = true;
-      // props.editor.commands.deleteRange({ from: props.editor.state.doc.nodeSize - 1, to: props.editor.state.doc.nodeSize });
+
+      // Reset the completion before starting a new one
+      setCompletion('');
 
       customComplete(getPrevText(props.editor, {
         chars: 5000,
